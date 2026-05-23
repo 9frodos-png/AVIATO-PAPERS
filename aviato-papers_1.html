@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aviato Papers</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5EFE0;
+    --cream-dark: #EDE5CF;
+    --ink: #1C1A14;
+    --ink-soft: #3D3A2F;
+    --ink-faint: #8C8570;
+    --rust: #B5451B;
+    --rust-light: #D4633A;
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --paper: #FAF6ED;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #2C2A24;
+    font-family: 'EB Garamond', serif;
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+  }
+
+  /* ── CONTROLS ── */
+  .controls {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.06);
+    color: #D4C9A8;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+  .btn:hover {
+    background: rgba(255,255,255,0.14);
+    color: #fff;
+    border-color: rgba(255,255,255,0.35);
+  }
+  .btn.primary {
+    background: var(--rust);
+    border-color: var(--rust);
+    color: #fff;
+  }
+  .btn.primary:hover { background: var(--rust-light); }
+
+  /* ── BOOKLET WRAPPER ── */
+  .booklet {
+    width: 148mm;
+    background: var(--paper);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 4px 16px rgba(0,0,0,0.3);
+    position: relative;
+  }
+
+  /* Spine texture */
+  .booklet::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 8px;
+    background: linear-gradient(to right, #8C6A3A, #C49A5A, #8C6A3A);
+    z-index: 10;
+  }
+
+  /* ── PAGE ── */
+  .page {
+    width: 100%;
+    padding: 28px 30px 48px 40px;
+    background: var(--paper);
+    position: relative;
+    border-bottom: 1px solid var(--cream-dark);
+    overflow: visible;
+  }
+
+  .page:last-child { border-bottom: none; }
+
+  /* Paper grain overlay */
+  .page::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: 0.5;
+    z-index: 1;
+  }
+
+  /* Page number */
+  .page-num {
+    position: absolute;
+    bottom: 18px;
+    right: 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--ink-faint);
+    letter-spacing: 0.1em;
+    z-index: 2;
+  }
+
+  /* Decorative margin line */
+  .page-margin {
+    position: absolute;
+    left: 32px; top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, #D4C4A0 15%, #D4C4A0 85%, transparent);
+    z-index: 2;
+  }
+
+  /* ── PAGE 1: COVER ── */
+  .page-cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 80px 36px;
+    background: var(--ink);
+    position: relative;
+  }
+
+  .page-cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 40%, #3D3828 0%, transparent 70%),
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 28px,
+        rgba(255,255,255,0.015) 28px,
+        rgba(255,255,255,0.015) 29px
+      );
+  }
+
+  .cover-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.8;
+    margin-bottom: 48px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cover-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 62px;
+    font-weight: 600;
+    color: var(--cream);
+    letter-spacing: 0.08em;
+    line-height: 1;
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.4);
+  }
+
+  .cover-logo-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.35em;
+    color: var(--gold);
+    opacity: 0.7;
+    margin-top: 8px;
+    text-transform: uppercase;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cover-divider {
+    width: 40px;
+    height: 1px;
+    background: var(--gold);
+    opacity: 0.5;
+    margin: 36px auto;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cover-quote {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    line-height: 1.75;
+    color: rgba(245,239,224,0.75);
+    max-width: 220px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cover-issue {
+    position: absolute;
+    bottom: 28px;
+    left: 0; right: 0;
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.2);
+    z-index: 2;
+  }
+
+  /* Decorative plane stamp */
+  .cover-stamp {
+    position: absolute;
+    top: 28px;
+    right: 28px;
+    width: 52px;
+    height: 52px;
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    opacity: 0.5;
+  }
+  .cover-stamp svg { opacity: 0.8; }
+
+  /* ── SECTION HEADERS ── */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rust);
+    opacity: 0.25;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 1.3;
+    color: var(--ink);
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .section-title em {
+    color: var(--rust);
+    font-style: italic;
+  }
+
+  .body-text {
+    font-family: 'EB Garamond', serif;
+    font-size: 14px;
+    line-height: 1.85;
+    color: var(--ink-soft);
+    position: relative;
+    z-index: 2;
+    margin-bottom: 14px;
+  }
+
+  .body-text em {
+    font-style: italic;
+    color: var(--ink);
+  }
+
+  /* ── PULL QUOTE ── */
+  .pull-quote {
+    border-left: 3px solid var(--gold);
+    padding: 12px 0 12px 18px;
+    margin: 20px 0;
+    position: relative;
+    z-index: 2;
+  }
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+
+  /* ── OBSERVATION LIST ── */
+  .obs-list {
+    list-style: none;
+    position: relative;
+    z-index: 2;
+    margin: 20px 0;
+  }
+  .obs-list li {
+    font-family: 'EB Garamond', serif;
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: var(--ink-soft);
+    padding: 10px 0 10px 20px;
+    border-bottom: 1px solid var(--cream-dark);
+    position: relative;
+  }
+  .obs-list li:first-child { border-top: 1px solid var(--cream-dark); }
+  .obs-list li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-weight: 400;
+  }
+
+  .obs-cta {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--rust);
+    margin-top: 16px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ── DIALOGUE ── */
+  .dialogue-section {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 12px;
+  }
+
+  .table-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .table-label::before {
+    content: '';
+    width: 14px;
+    height: 1px;
+    background: var(--ink-faint);
+    opacity: 0.4;
+  }
+
+  .dialogue {
+    background: var(--cream-dark);
+    border-radius: 2px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+
+  .dialogue-line {
+    font-family: 'EB Garamond', serif;
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    padding: 4px 0;
+    display: flex;
+    gap: 10px;
+  }
+
+  .dialogue-speaker {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--rust);
+    font-weight: 400;
+    min-width: 14px;
+    padding-top: 2px;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── FLIGHT SECTION ── */
+  .flight-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 42px;
+    color: var(--cream-dark);
+    line-height: 1;
+    margin-bottom: -8px;
+    position: relative;
+    z-index: 2;
+    letter-spacing: -0.02em;
+  }
+
+  .flight-fact {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 16px 18px;
+    margin: 16px 0;
+    position: relative;
+    z-index: 2;
+  }
+  .flight-fact p {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 13.5px;
+    line-height: 1.7;
+    opacity: 0.85;
+  }
+  .flight-fact .fact-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 7.5px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+    opacity: 0.7;
+  }
+
+  /* ── LETTER ── */
+  .letter {
+    position: relative;
+    z-index: 2;
+    padding-top: 8px;
+  }
+
+  .letter-salutation {
+    font-family: 'EB Garamond', serif;
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  .letter-body {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    line-height: 2;
+    color: var(--ink);
+    margin-bottom: 28px;
+  }
+
+  .letter-body span {
+    display: block;
+  }
+
+  .letter-body .indent {
+    padding-left: 0;
+    margin-top: -6px;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  .letter-sig {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--rust);
+    margin-top: 12px;
+  }
+
+  /* ── QUESTION CARD ── */
+  .qcard {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 24px 20px;
+    position: relative;
+    margin-top: 24px;
+    z-index: 2;
+  }
+  .qcard::before {
+    content: '';
+    position: absolute;
+    top: 6px; left: 6px; right: -6px; bottom: -6px;
+    border: 1px solid var(--gold);
+    opacity: 0.2;
+    z-index: -1;
+  }
+  .qcard-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.7;
+    margin-bottom: 14px;
+  }
+  .qcard-q {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--cream);
+  }
+  .qcard-sub {
+    font-family: 'EB Garamond', serif;
+    font-size: 12px;
+    color: rgba(245,239,224,0.4);
+    margin-top: 12px;
+    font-style: italic;
+  }
+
+  /* ── BACK COVER ── */
+  .page-back {
+    background: var(--cream-dark);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 50px 36px;
+    min-height: 140px;
+  }
+
+  .back-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    letter-spacing: 0.12em;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .back-tagline {
+    font-family: 'DM Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.2em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+  }
+  .back-dots {
+    display: flex;
+    gap: 6px;
+    margin: 20px 0 24px;
+    justify-content: center;
+  }
+  .dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--gold);
+    opacity: 0.4;
+  }
+  .dot:nth-child(2) { opacity: 0.7; }
+
+  /* ── DECORATIVE ── */
+  .deco-line {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold) 30%, var(--gold) 70%, transparent);
+    opacity: 0.3;
+    margin: 20px 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  .footnote {
+    font-family: 'DM Mono', monospace;
+    font-size: 8.5px;
+    color: var(--ink-faint);
+    letter-spacing: 0.06em;
+    margin-top: 20px;
+    padding-top: 12px;
+    border-top: 1px solid var(--cream-dark);
+    position: relative;
+    z-index: 2;
+  }
+
+  .runic {
+    font-size: 18px;
+    color: var(--gold);
+    opacity: 0.4;
+    line-height: 1;
+    position: absolute;
+    z-index: 2;
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    body {
+      background: white;
+      padding: 0;
+    }
+    .controls { display: none; }
+    .booklet {
+      box-shadow: none;
+      width: 148mm;
+    }
+    .page { page-break-after: always; }
+    .page:last-child { page-break-after: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <button class="btn primary" onclick="window.print()">🖨 Cetak / Print</button>
+</div>
+
+<div class="booklet">
+
+  <!-- ══ COVER ══ -->
+  <div class="page page-cover">
+    <div class="cover-stamp">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <path d="M4 18L12 10L16 14L22 6" stroke="#C9A84C" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M14 18L20 12" stroke="#C9A84C" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+        <circle cx="22" cy="6" r="2" fill="#C9A84C" opacity="0.5"/>
+      </svg>
+    </div>
+    <div class="cover-tag">Vol. I · Edisi Pertama</div>
+    <div class="cover-logo">AVIATO</div>
+    <div class="cover-logo-sub">Papers</div>
+    <div class="cover-divider"></div>
+    <div class="cover-quote">
+      "Kadang manusia tidak membutuhkan tempat yang terlalu mewah. Manusia hanya membutuhkan ruang yang membuat pikirannya kembali bernapas."
+    </div>
+    <div class="cover-issue">A5 · Sebuah percakapan kecil · Disimpan di meja ini untuk kamu</div>
+  </div>
+
+  <!-- ══ HAL. 2 ══ -->
+  <div class="page">
+    <div class="page-margin"></div>
+    <div class="section-label">Halaman Dua</div>
+    <div class="section-title">Kenapa tempat<br>ini <em>ada?</em></div>
+
+    <div class="body-text">
+      Ada pertanyaan yang sudah lama mengganggu.
+    </div>
+
+    <div class="pull-quote">
+      <p>Mengapa manusia hari ini bisa berdebat sampai subuh di media sosial, tapi semakin sulit menemukan seseorang yang benar-benar mendengarkan?</p>
+    </div>
+
+    <div class="body-text">
+      Bukan soal teknologinya. Bukan soal jarak. Tapi soal sesuatu yang lebih sederhana — dan lebih sulit:
+    </div>
+
+    <div class="body-text">
+      <em>Kesediaan untuk hadir.</em>
+    </div>
+
+    <div class="body-text">
+      Aviato lahir dari pertanyaan itu. Bukan sebagai jawaban — tapi sebagai ruang di mana pertanyaan itu boleh diucapkan dengan tenang, sambil ngopi, tanpa harus segera terselesaikan.
+    </div>
+
+    <div class="deco-line"></div>
+
+    <div class="footnote">
+      Kalau kamu sedang membaca ini sendirian, itu juga tidak apa-apa.
+    </div>
+    <div class="page-num">2</div>
+  </div>
+
+  <!-- ══ HAL. 3–4 ══ -->
+  <div class="page">
+    <div class="page-margin"></div>
+    <div class="section-label">Halaman Tiga</div>
+    <div class="section-title">Hal yang mungkin<br>pernah kamu <em>rasakan</em></div>
+
+    <div class="body-text">Sekadar observasi. Bukan tuduhan.</div>
+
+    <ul class="obs-list">
+      <li>Pernah duduk satu meja, tapi semua orang sibuk dengan layar masing-masing?</li>
+      <li>Pernah ketemu banyak orang dalam satu hari, tapi pulang tetap merasa sepi?</li>
+      <li>Pernah ingin bicara tentang sesuatu, tapi tidak tahu harus mulai dari mana?</li>
+      <li>Pernah merasa bahwa hari-hari berlalu dengan cepat, tapi tidak banyak yang benar-benar <em>terjadi?</em></li>
+      <li>Pernah merindukan percakapan yang tidak perlu viral untuk terasa bermakna?</li>
+    </ul>
+
+    <div class="obs-cta">
+      Kalau iya — mungkin kamu sedang ada di tempat yang tepat.
+    </div>
+
+    <div class="deco-line"></div>
+    <div class="body-text" style="font-size:12.5px; color: var(--ink-faint);">
+      Tidak perlu melakukan apa-apa. Cukup duduk. Pesan sesuatu. Dan lihat apa yang terjadi.
+    </div>
+    <div class="page-num">3</div>
+  </div>
+
+  <!-- ══ HAL. 5–6: DIALOGUE ══ -->
+  <div class="page">
+    <div class="page-margin"></div>
+    <div class="section-label">Halaman Lima</div>
+    <div class="section-title"><em>Percakapan</em><br>yang mungkin terjadi<br>di meja sebelah</div>
+
+    <div class="dialogue-section">
+      <div class="table-label">Meja Satu</div>
+      <div class="dialogue">
+        <div class="dialogue-line">
+          <span class="dialogue-speaker">A</span>
+          <span>"Menurut lo, kenapa orang sekarang gampang marah?"</span>
+        </div>
+        <div class="dialogue-line">
+          <span class="dialogue-speaker">B</span>
+          <span>"Karena semua orang ingin didengar, tapi sedikit yang mau mendengar."</span>
+        </div>
+        <div class="dialogue-line" style="padding-top:6px; opacity:0.5;">
+          <span class="dialogue-speaker"></span>
+          <span style="font-size:11px; font-style:italic; color:var(--ink-faint);">Lalu keduanya diam sebentar. Dan itu terasa tepat.</span>
+        </div>
+      </div>
+
+      <div class="table-label">Meja Dua</div>
+      <div class="dialogue">
+        <div class="dialogue-line">
+          <span class="dialogue-speaker">A</span>
+          <span>"Pulp Fiction itu overrated gak, sih?"</span>
+        </div>
+        <div class="dialogue-line">
+          <span class="dialogue-speaker">B</span>
+          <span>"Bro… tenang. Kita masih teman."</span>
+        </div>
+        <div class="dialogue-line" style="padding-top:6px; opacity:0.5;">
+          <span class="dialogue-speaker"></span>
+          <span style="font-size:11px; font-style:italic; color:var(--ink-faint);">B memesan kopi kedua. Untuk keduanya.</span>
+        </div>
+      </div>
+
+      <div class="table-label">Meja Tiga</div>
+      <div class="dialogue">
+        <div class="dialogue-line">
+          <span class="dialogue-speaker">A</span>
+          <span>"Kenapa kopi pahit malah dicari orang?"</span>
+        </div>
+        <div class="dialogue-line">
+          <span class="dialogue-speaker">B</span>
+          <span>"Mungkin karena hidup sudah terlalu manis di Instagram."</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-num">5</div>
+  </div>
+
+  <!-- ══ HAL. 7–8: PENERBANGAN ══ -->
+  <div class="page">
+    <div class="page-margin"></div>
+    <div class="section-label">Halaman Tujuh</div>
+
+    <div class="flight-num">—</div>
+    <div class="section-title" style="margin-top:12px;">Sedikit tentang<br>dunia <em>terbang</em></div>
+
+    <div class="body-text">
+      Manusia sudah ribuan tahun memandang burung dan bertanya hal yang sama:
+    </div>
+
+    <div class="pull-quote">
+      <p>"Bagaimana rasanya meninggalkan tanah?"</p>
+    </div>
+
+    <div class="flight-fact">
+      <div class="fact-label">Catatan Penerbangan</div>
+      <p>Ketika sebuah pesawat lepas landas, yang terjadi bukan sekadar perpindahan tempat. Ada momen tepat di ambang landasan — di mana roda terangkat dan gravitasi sejenak kalah — yang terasa seperti keputusan.</p>
+    </div>
+
+    <div class="body-text">
+      Di Aviato, pertanyaan itu bisa dicoba. Dalam skala kecil. Di dalam ruangan. Dengan secangkir kopi dan seseorang di hadapan kamu.
+    </div>
+
+    <div class="body-text">
+      Terbang, pada akhirnya, dimulai dari keberanian untuk meninggalkan tempat yang terlalu nyaman.
+    </div>
+
+    <div class="page-num">7</div>
+  </div>
+
+  <!-- ══ HAL. AKHIR: SURAT ══ -->
+  <div class="page">
+    <div class="page-margin"></div>
+    <div class="section-label">Halaman Terakhir</div>
+
+    <div class="letter">
+      <div class="letter-salutation">Untuk siapa pun yang datang ke sini,</div>
+
+      <div class="letter-body">
+        <span>semoga kamu pulang</span>
+        <span>membawa sesuatu.</span>
+        <span>&nbsp;</span>
+        <span>Kalau bukan ide baru,</span>
+        <span class="indent">mungkin ketenangan.</span>
+        <span>&nbsp;</span>
+        <span>Kalau bukan jawaban,</span>
+        <span class="indent">mungkin pertanyaan</span>
+        <span class="indent">yang lebih baik.</span>
+        <span>&nbsp;</span>
+        <span>Kalau bukan teman baru,</span>
+        <span class="indent">mungkin kamu sendiri</span>
+        <span class="indent">yang sedikit lebih jelas.</span>
+      </div>
+
+      <div class="letter-sig">— Aviato</div>
+    </div>
+
+    <div class="deco-line"></div>
+
+    <div class="qcard">
+      <div class="qcard-label">✦ Pertanyaan Minggu Ini</div>
+      <div class="qcard-q">Jika uang bukan masalah — hidup seperti apa yang sebenarnya ingin kamu jalani?</div>
+      <div class="qcard-sub">Tidak perlu dijawab sendiri. Coba tanya orang di sebelahmu.</div>
+    </div>
+
+    <div class="page-num">12</div>
+  </div>
+
+  <!-- ══ BACK COVER ══ -->
+  <div class="page page-back">
+    <div class="back-logo">AVIATO</div>
+    <div class="back-tagline">Papers · Edisi I</div>
+    <div class="back-dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <div style="font-family:'EB Garamond',serif; font-style:italic; font-size:12px; color:var(--ink-faint); line-height:1.7;">
+      Mini journal ini dicetak terbatas.<br>
+      Kalau kamu suka, bawa pulang.<br>
+      Kalau tidak, tinggalkan untuk yang berikutnya.
+    </div>
+  </div>
+
+</div><!-- /booklet -->
+
+</body>
+</html>
